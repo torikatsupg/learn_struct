@@ -14,6 +14,26 @@ struct File {
     state: FileState,
 }
 
+trait Read {
+    fn read(self: &Self, save_to: &mut Vec<u8>) -> Result<usize, String>;
+}
+
+impl Read for File {
+    fn read(
+        self: &File,
+        save_to: &mut Vec<u8>
+    ) -> Result<usize, String> {
+        if self.state != FileState::Open {
+            return Err(String::from("File must be open for reading"));
+        }
+        let mut tmp = self.data.clone();
+        let read_length = tmp.len();
+        save_to.reserve(read_length);
+        save_to.append(&mut tmp);
+        Ok(read_length)
+    }
+}
+
 impl File {
     fn new(name: &str) -> File {
         File {
@@ -27,20 +47,6 @@ impl File {
         let mut f = File::new(name);
         f.data = data.clone();
         f
-    }
-
-    fn read(
-        self: &File,
-        save_to: &mut Vec<u8>
-    ) -> Result<usize, String> {
-        if self.state != FileState::Open {
-            return Err(String::from("File must be open for reading"));
-        }
-        let mut tmp = self.data.clone();
-        let read_length = tmp.len();
-        save_to.reserve(read_length);
-        save_to.append(&mut tmp);
-        Ok(read_length)
     }
 }
 
